@@ -2,7 +2,7 @@
 <Liana Carvalho Lima, F, 20/02/1984, 18/05/2021>
 <Raquel Carvalho Silva, F, 20/12/1980, 18/01/2021>
 <Joao Lucas Martins, M, 15/11/1989, 12/03/2021>
-<Jessica Lira, F, 18/02/1994, 18/05/2020>
+<Jessica Lima, F, 22/12/2000, 12/12/2021>
 <Adriana Aline Almeida, F, 02/11/1984, 08/01/2022>
 <Joaquim Lima, M, 18/01/1990, 29/01/2022>
 <Camila Muniz, F, 08/02/1974, 13/05/2020>
@@ -42,3 +42,5 @@
 <Roberto Chives, M, 05/03/1990, 11/11/2021>
 <Miranda Maria Aniz, F, 18/09/1991, 30/08/2023>
 <André Ricardo, M, 28/09/1990, 30/01/2025>
+<Felipa Nunes, F, 22/12/2002, 11/11/2012>
+<Julia Fernandes, F, 20/12/2001, 23/11/2020>
