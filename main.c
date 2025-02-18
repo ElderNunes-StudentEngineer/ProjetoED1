@@ -21,6 +21,71 @@ typedef struct noAvl {
     int altura;
 } AVL;
 
+typedef struct nolista {
+    PACIENTE paciente;
+    struct nolista *proximo;
+    struct nolista *anterior;
+}NOLISTA;
+
+
+typedef struct lista {
+    NOLISTA *inicio;
+    int tamanho;
+}LISTADUPLAMENTEENCADEADA;
+
+void InicializaLista(LISTADUPLAMENTEENCADEADA *lista) {
+    lista->inicio = NULL;
+    lista->tamanho = 0;
+}
+
+bool EstaVazia(LISTADUPLAMENTEENCADEADA *lista) {
+    return lista->tamanho == 0;
+}
+
+
+void InsereElemento(LISTADUPLAMENTEENCADEADA *lista, PACIENTE novo_paciente) {
+    NOLISTA *novo_elemento = (NOLISTA*) malloc(sizeof(NOLISTA));
+    if (novo_elemento == NULL) {
+        printf("Erro ao alocar memória para novo elemento!!\n\n");
+        return;
+    }
+    novo_elemento->paciente.genero = novo_paciente.genero;
+    novo_elemento->paciente.nascimento = novo_paciente.nascimento;
+    strcpy(novo_elemento->paciente.nome, novo_paciente.nome);
+    novo_elemento->paciente.ultima_consulta = novo_paciente.ultima_consulta;
+    
+    if (EstaVazia(lista) == true) {
+        lista->inicio = novo_elemento;
+        lista->inicio->anterior = lista->inicio->proximo = NULL;
+    } else if (strcmp(lista->inicio->paciente.nome, novo_paciente.nome) < 0) {
+        novo_elemento->proximo = lista->inicio;
+        novo_elemento->anterior = NULL; 
+        lista->inicio->anterior = novo_elemento;
+        lista->inicio = novo_elemento;
+    } else {
+        NOLISTA *aux = lista->inicio;
+        while (aux->proximo != NULL && strcmp(aux->proximo->paciente.nome, novo_paciente.nome) > 0) {
+            aux = aux->proximo;
+        }
+
+        novo_elemento->proximo = aux->proximo;
+        novo_elemento->anterior = aux;
+        if (aux->proximo != NULL) {
+            aux->proximo->anterior = novo_elemento;
+        }
+        aux->proximo = novo_elemento;
+
+        if (aux != NULL) {
+            aux->anterior = novo_elemento;
+        }
+        
+    }
+    
+    lista->tamanho++;
+
+    return;
+}
+
 // Funções da árvore AVL
 int altura(AVL *no) {
     if (no == NULL) {
@@ -216,6 +281,23 @@ void ConsultarPaciente(PACIENTE *pacientes, int numero_pacientes, DATA data_atua
     printf("Paciente não encontrado.\n");
 }
 
+void salvarPacientesNoArquivo(PACIENTE *pacientes, int numero_pacientes, const char *nome_arquivo) {
+    FILE *arquivo = fopen(nome_arquivo, "w");
+    if (arquivo == NULL) {
+        printf("Erro ao abrir arquivo %s para escrita\n", nome_arquivo);
+        return;
+    }
+
+    for (int i = 0; i < numero_pacientes; i++) {
+        fprintf(arquivo, "<%s, %c, %02d/%02d/%04d, %02d/%02d/%04d>\n",
+                pacientes[i].nome, pacientes[i].genero,
+                pacientes[i].nascimento.dia, pacientes[i].nascimento.mes, pacientes[i].nascimento.ano,
+                pacientes[i].ultima_consulta.dia, pacientes[i].ultima_consulta.mes, pacientes[i].ultima_consulta.ano);
+    }
+    fclose(arquivo);
+    printf("Arquivo %s atualizado com sucesso!\n", nome_arquivo);
+}
+
 void CadastrarPaciente(PACIENTE **pacientes, int *numero_pacientes, AVL **raiz, const char *nome_arquivo) {
     *pacientes = (PACIENTE *)realloc(*pacientes, (*numero_pacientes + 1) * sizeof(PACIENTE));
     if (*pacientes == NULL) {
@@ -279,22 +361,6 @@ void AlterarCadastroPaciente(PACIENTE *pacientes, int numero_pacientes, AVL **ra
     printf("Paciente não encontrado.\n");
 }
 
-void salvarPacientesNoArquivo(PACIENTE *pacientes, int numero_pacientes, const char *nome_arquivo) {
-    FILE *arquivo = fopen(nome_arquivo, "w");
-    if (arquivo == NULL) {
-        printf("Erro ao abrir arquivo %s para escrita\n", nome_arquivo);
-        return;
-    }
-
-    for (int i = 0; i < numero_pacientes; i++) {
-        fprintf(arquivo, "<%s, %c, %02d/%02d/%04d, %02d/%02d/%04d>\n",
-                pacientes[i].nome, pacientes[i].genero,
-                pacientes[i].nascimento.dia, pacientes[i].nascimento.mes, pacientes[i].nascimento.ano,
-                pacientes[i].ultima_consulta.dia, pacientes[i].ultima_consulta.mes, pacientes[i].ultima_consulta.ano);
-    }
-    fclose(arquivo);
-    printf("Arquivo %s atualizado com sucesso!\n", nome_arquivo);
-}
 
 void gerarArquivoSaida(AVL *raiz) {
     FILE *arquivo_Liz = fopen("pacientes_Liz.txt", "w");
@@ -308,7 +374,20 @@ void gerarArquivoSaida(AVL *raiz) {
     printf("Arquivo pacientes_Liz.txt gerado com sucesso!\n");
 }
 
-void MenuPaciente(PACIENTE **pacientes, int *numero_pacientes, DATA data_atual, AVL **raiz, const char *nome_arquivo) {
+void gerarArquivoSaidaMoises(LISTADUPLAMENTEENCADEADA *lista) {
+    FILE *arquivo = fopen("pacientes_Moises.txt","w");
+    NOLISTA *aux = lista->inicio;
+    while (aux != NULL) {
+        fprintf(arquivo, "<%s, %c, %02d/%02d/%04d, %02d/%02d/%04d>\n", aux->paciente.nome, aux->paciente.genero, aux->paciente.ultima_consulta.dia, aux->paciente.ultima_consulta.mes, aux->paciente.ultima_consulta.ano, aux->paciente.nascimento.dia, aux->paciente.nascimento.mes, aux->paciente.nascimento.ano);
+        aux = aux->proximo;
+    }
+
+    fclose(arquivo);
+    printf("Arquivo pacientes_Moises.txt gerado com sucesso!");
+    return;
+}
+
+void MenuPaciente(PACIENTE **pacientes, int *numero_pacientes, DATA data_atual, AVL **raiz, const char *nome_arquivo, LISTADUPLAMENTEENCADEADA *lista) {
     int opcao;
     do {
         exibirMenuPaciente();
@@ -327,6 +406,7 @@ void MenuPaciente(PACIENTE **pacientes, int *numero_pacientes, DATA data_atual, 
                 return;
             case 5:
                 gerarArquivoSaida(*raiz);
+                gerarArquivoSaidaMoises(lista);
                 exit(0);
             default:
                 printf("Opção inválida\n");
@@ -334,11 +414,164 @@ void MenuPaciente(PACIENTE **pacientes, int *numero_pacientes, DATA data_atual, 
     } while (true);
 }
 
+void CadastraPacienteMoises(PACIENTE **pacientes, int *numero_pacientes, LISTADUPLAMENTEENCADEADA *lista) {
+    *pacientes = (PACIENTE *)realloc(*pacientes, (*numero_pacientes + 1) * sizeof(PACIENTE));
+    if (*pacientes == NULL) {
+        printf("Erro ao alocar memória!\n");
+        exit(1);
+    }
+
+    PACIENTE novoPaciente;
+
+    printf("Digite o nome do paciente: ");
+    scanf(" %[^\n]", novoPaciente.nome);
+    printf("Digite o gênero do paciente (M/F): ");
+    do {
+        scanf(" %c", &novoPaciente.genero);
+        if (novoPaciente.genero != 'F' && novoPaciente.genero != 'M') {
+            printf("\nValor inválido, insira um valor válido!\n");
+        }
+        setbuf(stdin,NULL);
+    } while (novoPaciente.genero != 'F' && novoPaciente.genero != 'M');
+    printf("Digite a data de nascimento (dd/mm/yyyy): ");
+    do {
+        scanf("%d/%d/%d", &novoPaciente.nascimento.dia, &novoPaciente.nascimento.mes, &novoPaciente.nascimento.ano);
+        if (novoPaciente.nascimento.dia < 0 || novoPaciente.nascimento.dia > 31 ||novoPaciente.nascimento.dia < 0 || novoPaciente.nascimento.mes > 12) {
+            printf("\nValor inválido, insira um valor válido!\n");
+        }
+        setbuf(stdin,NULL);
+    } while (novoPaciente.nascimento.dia < 0 || novoPaciente.nascimento.dia > 31 ||novoPaciente.nascimento.dia < 0 || novoPaciente.nascimento.mes > 12);
+    
+    printf("Digite a data da última consulta (dd/mm/yyyy): ");
+    do {
+        scanf("%d/%d/%d", &novoPaciente.nascimento.dia, &novoPaciente.nascimento.mes, &novoPaciente.nascimento.ano);
+        if (novoPaciente.ultima_consulta.dia < 0 || novoPaciente.ultima_consulta.dia > 31 ||novoPaciente.ultima_consulta.dia < 0 || novoPaciente.ultima_consulta.mes > 12) {
+            printf("\nValor inválido, insira um valor válido!\n");
+        }
+        setbuf(stdin,NULL);
+    } while (novoPaciente.ultima_consulta.dia < 0 || novoPaciente.ultima_consulta.dia > 31 ||novoPaciente.ultima_consulta.dia < 0 || novoPaciente.ultima_consulta.mes > 12);
+
+    (*pacientes)[*numero_pacientes] = novoPaciente;
+    (*numero_pacientes)++;
+
+    if (novoPaciente.genero == 'M') {
+        InsereElemento(lista, novoPaciente);
+    }
+
+    printf("Paciente adicionado com sucesso!\n");
+    return;
+}
+
+void AlterarCadastroPacienteMoises(LISTADUPLAMENTEENCADEADA *lista) {
+    char nome[41];
+    int opcao;
+    printf("\nInsira o nome do paciente a ser alterado:");
+    scanf(" %[^\n]", nome);
+    NOLISTA *aux = lista->inicio;
+    while (aux != NULL && strcmp(aux->paciente.nome, nome) != 0) {
+        aux = aux->proximo;
+    }
+    if (aux == NULL) {
+        printf("\nNome não encontrado\n");
+        return;
+    } else {
+        printf("Nome localizado, o que deseja alterar?\n");
+        while (opcao < 1 || opcao > 4) {
+            printf(
+            "1: Nome\n"
+            "2: Genero\n"
+            "3: Ultima consulta\n"
+            "4: Nascimento\n");
+            scanf("%d", &opcao);
+            if (opcao < 1 || opcao > 4) {
+                printf("Valor inválido, insira um avlor válido\n");
+            }
+        }
+        switch (opcao) {
+        case 1:
+            printf("Novo nome: ");
+            scanf("%[^\n]", aux->paciente.nome);
+            printf("Nome Alterado para %s", aux->paciente.nome);
+            break;
+        case 2: 
+            if (aux->paciente.genero == 'F') {
+                aux->paciente.genero = 'M';
+            } else {
+                aux->paciente.genero = 'F';
+            }
+            printf("Genero Alterado para %c", aux->paciente.genero);
+            break;
+        case 3:
+            printf("Data da nova consulta (dd/mm/yyyy): ");
+            scanf("%d/%d/%d", &aux->paciente.ultima_consulta.dia, &aux->paciente.ultima_consulta.mes, &aux->paciente.ultima_consulta.ano);
+            printf("Data alterada para %d/%d/%d", aux->paciente.ultima_consulta.dia, aux->paciente.ultima_consulta.mes, aux->paciente.ultima_consulta.ano);
+            break;
+        case 4: 
+            printf("Nova data de nascimento (dd/mm/yyyy): ");
+            scanf("%d/%d/%d", &aux->paciente.nascimento.dia, &aux->paciente.nascimento.mes, &aux->paciente.nascimento.ano);
+            printf("Data alterada para %d/%d/%d", aux->paciente.nascimento.dia, aux->paciente.nascimento.mes, aux->paciente.nascimento.ano);
+        default:
+            break;
+        }
+        
+    }
+    return;
+}
+
+
+
+void MenuPacienteMoises(PACIENTE **pacientes, int *numero_pacientes, DATA data_atual, LISTADUPLAMENTEENCADEADA *lista) {
+    int opcao;
+    do {
+        exibirMenuPaciente();
+        scanf("%d", &opcao);
+        switch (opcao) {
+            case 1:
+                ConsultarPaciente(*pacientes, *numero_pacientes, data_atual);
+                break;
+            case 2:
+                CadastraPacienteMoises(pacientes, numero_pacientes, lista);
+                break;
+            case 3:
+                AlterarCadastroPacienteMoises(lista);
+                break;
+            case 4:
+                return;
+            case 5:
+                gerarArquivoSaidaMoises(lista);
+                exit(0);
+            default:
+                printf("Opção inválida\n");
+        }
+    } while (true);
+}
+
+void liberaAVL(AVL *raiz) {
+    if (raiz != NULL) {
+        liberaAVL(raiz->esq);
+        liberaAVL(raiz->dir);
+        free(raiz);
+    }
+}
+
+void liberaLista(LISTADUPLAMENTEENCADEADA *lista) {
+    NOLISTA *aux = lista->inicio;
+    while (aux != NULL) {
+        NOLISTA *temp = aux;
+        aux = aux->proximo;
+        free(temp);
+    }
+}
+
+
 int main(int argc, char *argv[]) {
     AVL *raiz = NULL;
     PACIENTE *pacientes = NULL; 
     int numero_pacientes = 0;
     DATA data_atual = RecebeDataAtual();
+    LISTADUPLAMENTEENCADEADA lista;
+
+    InicializaLista(&lista);
 
     if (argc < 2) {
         printf("Uso: %s <arquivo_de_entrada>\n", argv[0]);
@@ -364,6 +597,9 @@ int main(int argc, char *argv[]) {
         if (temp.genero == 'F') {
             raiz = Inserir(raiz, temp);
         }
+        if (temp.genero == 'M') {
+            InsereElemento(&lista, temp);
+        }
         numero_pacientes++;
     }
     fclose(arquivo_entrada);
@@ -375,14 +611,15 @@ int main(int argc, char *argv[]) {
         switch (opcao) {
             case 1:
                 printf("Pacientes da Liz:\n");
-                MenuPaciente(&pacientes, &numero_pacientes, data_atual, &raiz, nome_arquivo);
+                MenuPaciente(&pacientes, &numero_pacientes, data_atual, &raiz, nome_arquivo, &lista);
                 break;
             case 2:
                 printf("Pacientes do Moisés:\n");
-                MenuPaciente(&pacientes, &numero_pacientes, data_atual, &raiz, nome_arquivo);
+                MenuPacienteMoises(&pacientes, &numero_pacientes, data_atual, &lista);
                 break;
             case 3:
                 gerarArquivoSaida(raiz);
+                gerarArquivoSaidaMoises(&lista);
                 free(pacientes); 
                 printf("Encerrando o programa...\n");
                 exit(0);
@@ -390,6 +627,9 @@ int main(int argc, char *argv[]) {
                 printf("Opção inválida\n");
         }
     } while (true);
+
+    liberaAVL(raiz);
+    liberaLista(&lista);
 
     return 0;
 }
