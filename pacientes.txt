@@ -36,7 +36,7 @@
 <Josefina Cristina José, F, 24/02/2002, 12/08/2024>
 <Carlos André Moisés, M, 28/09/1992, 30/08/2023>
 <Carlos Anacleto, M, 13/12/1991, 31/12/2023>
-<Ana Cleturia, F, 23/12/1998, 21/01/2023>
+<Ana Julia, F, 22/12/2000, 31/12/2022>
 <Roberta Luiza Have, F, 15/02/1988, 11/05/2021>
 <Luiz Roberto Chaves, M, 25/02/2000, 10/09/2021>
 <Roberto Chives, M, 05/03/1990, 11/11/2021>
@@ -44,3 +44,4 @@
 <André Ricardo, M, 28/09/1990, 30/01/2025>
 <Felipa Nunes, F, 22/12/2002, 11/11/2012>
 <Julia Fernandes, F, 20/12/2001, 23/11/2020>
+<Maria Nunes, F, 22/12/2008, 21/09/2022>
