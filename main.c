@@ -171,7 +171,7 @@ DATA RecebeDataAtual() {
     do {
         scanf("%d/%d/%d", &aux.dia, &aux.mes, &aux.ano);
         while (getchar() != '\n'); 
-    } while (aux.mes > 12 || aux.mes < 1 || aux.ano < 1930);
+    } while (aux.mes > 12 || aux.mes < 1 || aux.ano < 1930 || aux.dia > 31 || aux.dia < 1);
     return aux;
 }
 
