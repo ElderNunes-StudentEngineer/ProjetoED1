@@ -383,7 +383,7 @@ void gerarArquivoSaidaMoises(LISTADUPLAMENTEENCADEADA *lista) {
     }
 
     fclose(arquivo);
-    printf("Arquivo pacientes_Moises.txt gerado com sucesso!");
+    printf("Arquivo pacientes_Moises.txt gerado com sucesso!\n");
     return;
 }
 
@@ -444,14 +444,12 @@ void CadastraPacienteMoises(PACIENTE **pacientes, int *numero_pacientes, LISTADU
     
     printf("Digite a data da última consulta (dd/mm/yyyy): ");
     do {
-        scanf("%d/%d/%d", &novoPaciente.nascimento.dia, &novoPaciente.nascimento.mes, &novoPaciente.nascimento.ano);
+        scanf("%d/%d/%d", &novoPaciente.ultima_consulta.dia, &novoPaciente.ultima_consulta.mes, &novoPaciente.ultima_consulta.ano);
         if (novoPaciente.ultima_consulta.dia < 0 || novoPaciente.ultima_consulta.dia > 31 ||novoPaciente.ultima_consulta.dia < 0 || novoPaciente.ultima_consulta.mes > 12) {
             printf("\nValor inválido, insira um valor válido!\n");
         }
         setbuf(stdin,NULL);
     } while (novoPaciente.ultima_consulta.dia < 0 || novoPaciente.ultima_consulta.dia > 31 ||novoPaciente.ultima_consulta.dia < 0 || novoPaciente.ultima_consulta.mes > 12);
-
-    (*pacientes)[*numero_pacientes] = novoPaciente;
     (*numero_pacientes)++;
 
     if (novoPaciente.genero == 'M') {
@@ -520,7 +518,7 @@ void AlterarCadastroPacienteMoises(LISTADUPLAMENTEENCADEADA *lista) {
 
 
 
-void MenuPacienteMoises(PACIENTE **pacientes, int *numero_pacientes, DATA data_atual, LISTADUPLAMENTEENCADEADA *lista) {
+void MenuPacienteMoises(PACIENTE **pacientes, int *numero_pacientes, DATA data_atual, LISTADUPLAMENTEENCADEADA *lista, AVL **raiz) {
     int opcao;
     do {
         exibirMenuPaciente();
@@ -539,6 +537,7 @@ void MenuPacienteMoises(PACIENTE **pacientes, int *numero_pacientes, DATA data_a
                 return;
             case 5:
                 gerarArquivoSaidaMoises(lista);
+                gerarArquivoSaida(*raiz);
                 exit(0);
             default:
                 printf("Opção inválida\n");
@@ -615,7 +614,7 @@ int main(int argc, char *argv[]) {
                 break;
             case 2:
                 printf("Pacientes do Moisés:\n");
-                MenuPacienteMoises(&pacientes, &numero_pacientes, data_atual, &lista);
+                MenuPacienteMoises(&pacientes, &numero_pacientes, data_atual, &lista, &raiz);
                 break;
             case 3:
                 gerarArquivoSaida(raiz);
